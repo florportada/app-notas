@@ -1,35 +1,67 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useEffect } from "react";
+import NoteList from "./NoteList";
+import NoteEditor from "./NoteEditor";
+import "./styles.css";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [notes, setNotes] = useState([]);
+  const [activeNote, setActiveNote] = useState(null);
+
+  // Cargar notas
+  useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem("notes")) || [];
+    setNotes(saved);
+  }, []);
+
+  // Guardar notas
+  useEffect(() => {
+    localStorage.setItem("notes", JSON.stringify(notes));
+  }, [notes]);
+
+  const addNote = () => {
+    const newNote = {
+      id: Date.now(),
+      title: "Nueva nota",
+      content: "",
+      date: new Date().toLocaleString(),
+    };
+    setNotes([newNote, ...notes]);
+    setActiveNote(newNote.id);
+  };
+
+  const updateNote = (id, updatedFields) => {
+    setNotes(notes.map(n => (n.id === id ? { ...n, ...updatedFields } : n)));
+  };
+
+  const deleteNote = (id) => {
+    setNotes(notes.filter(n => n.id !== id));
+    setActiveNote(null);
+  };
+
+  const currentNote = notes.find(n => n.id === activeNote);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className="app">
+      <aside className="sidebar">
+        <h1>🗒️ Mis Notas</h1>
+        <button onClick={addNote} className="add-btn">+ Nueva nota</button>
+        <NoteList
+          notes={notes}
+          activeNote={activeNote}
+          onSelect={setActiveNote}
+          onDelete={deleteNote}
+        />
+      </aside>
+
+      <main className="main">
+        {currentNote ? (
+          <NoteEditor note={currentNote} onChange={updateNote} />
+        ) : (
+          <p className="no-selection">Selecciona o crea una nota</p>
+        )}
+      </main>
+    </div>
+  );
 }
 
-export default App
+export default App;
