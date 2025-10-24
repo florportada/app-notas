@@ -16,8 +16,8 @@ function NoteEditor({ note, onChange }) {
       onChange(note.id, { title, content });
     }, 400);
     return () => clearTimeout(delay);
-  }, [title, content]);
-
+  }, [note.id, title, content]);
+  
   return (
     <div className="editor">
       <input
