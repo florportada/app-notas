@@ -4,14 +4,8 @@ import NoteEditor from "./NoteEditor";
 import "./styles.css";
 
 function App() {
-  const [notes, setNotes] = useState([]);
+  const [notes, setNotes] = useState(JSON.parse(localStorage.getItem("notes")) || []);
   const [activeNote, setActiveNote] = useState(null);
-
-  // Cargar notas
-  useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("notes")) || [];
-    setNotes(saved);
-  }, []);
 
   // Guardar notas
   useEffect(() => {
